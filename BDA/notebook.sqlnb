@@ -1,0 +1,304 @@
+saveOutputs: false
+cells:
+  - kind: 2
+    value: |-
+      @/Users/vets/Projects/upv/login.sql
+
+      select fecha_nac
+      from ACTOR
+    languageId: oracle-sql
+  - kind: 1
+    value: >-
+      Código y nombre de los países con actores tales que todos los actores de
+      ese país han nacido en el siglo XX (ordenados por nombre)
+
+
+      Para todo (actor del país) -> actor ha nacido en el siglo XX (PARA LO QUE
+      REQUIERE QUE SE CUMPLA PARA TODO)
+
+
+      => NO existe actor del país ^ NO actor nacido en el siglo XX
+    languageId: markdown
+  - kind: 2
+    value: |-
+      Select p.cod_pais, p.nombre
+      from pais p
+      where not exists(Select *
+                      from actor a
+                      where a.cod_pais =p.cod_pais
+                      and extract (year from a.fecha_nac)
+                                  not between 1900 and 1999)
+      order by p.nombre
+      No existe actua ^ no existe papel papel secundario
+      select a.cod_act, a.nombre
+      from actor a
+      where not exists(SELECT *
+                      from actua act
+                      where act.cod_act = a.cod_act and
+                      act.papel <> 'Secundario')
+
+      order by a.nombre
+    languageId: oracle-sql
+  - kind: 1
+    value: >-
+      
+
+
+      Obtener el código y el nombre de los actores que han aparecido en todas
+      las películas del director ‘Guy Ritchie’ (sólo si ha dirigido al menos
+      una).
+
+      No existe actua ^ No es director Guy Ritchie
+    languageId: markdown
+  - kind: 2
+    value: >-
+      
+      select a.cod_act, a.nombre
+
+      from actor a
+
+      where not exists(select * from pelicula p where director = 'Guy Ritchie'
+                      and not exists(select * from actua act where act.cod_Act = a.COD_ACT 
+                                  and p.cod_peli = act.cod_peli))
+    languageId: oracle-sql
+  - kind: 1
+    value: >-
+      
+
+      Obtener el código y el título de las películas de menos de 100 minutos en
+      las que todos los actores que han actuado son de un mismo país.
+
+
+      Para todo actua de ese actor -> existe pelicula de menos de 100 mi
+    languageId: markdown
+  - kind: 2
+    value: |
+      no existe actua de ese actor ^ no (pelicula dura menos de 100) ^ no ()
+      select p.cod_peli, p.titulo 
+      from pelicula p 
+      where not exists(select *
+                      from actua act
+                      join ACTOR a on 
+                      where act.COD_PELI = p.COD_PELI
+                      and p.DURACION > 100) and not exist
+    languageId: oracle-sql
+  - kind: 1
+    value: >
+      Código y nombre de los países con actores tales que todos los actores de
+      ese país han nacido en el siglo XX (ordenados por nombre)
+
+
+      $$\forall P \in \text{País}, \$$
+
+
+      $$ \forall A \in \text{Actor} \ (\text{"$A$ es del país $P$"} \rightarrow
+      \text{"AñoNacimiento($A$) está entre 1900 y 1999"})$$
+
+
+      $$ \text{ó} $$
+
+
+      $$ \neg \exists A \in \text{Actor} \ (\text{"$A$ es del país $P$"} \land
+      \neg(\text{"AñoNacimiento($A$) está entre 1900 y 1999"}))$$
+    languageId: markdown
+  - kind: 2
+    value: |-
+      Select p.cod_pais, p.nombre
+      from pais p
+      where not exists(Select *
+                      from actor a
+                      where a.cod_pais =p.cod_pais
+                      and extract (year from a.fecha_nac)
+                                  not between 1900 and 1999)
+      order by p.nombre
+    languageId: oracle-sql
+  - kind: 1
+    value: No existe actua ^ no existe papel papel secundario
+    languageId: markdown
+  - kind: 2
+    value: |-
+      select a.cod_act, a.nombre
+      from actor a
+      where not exists(SELECT *
+                      from actua act
+                      where act.cod_act = a.cod_act and
+                      act.papel <> 'Secundario')
+
+      order by a.nombre
+    languageId: oracle-sql
+  - kind: 1
+    value: >-
+      Obtener el código y el nombre de los actores que han aparecido en todas
+      las películas del director ‘Guy Ritchie’ (sólo si ha dirigido al menos
+      una).
+
+
+      No existe actua ^ No es director Guy Ritchie
+    languageId: markdown
+  - kind: 2
+    value: >-
+      select a.cod_act, a.nombre
+
+      from actor a
+
+      where not exists(select * from pelicula p where director = 'Guy Ritchie'
+                      and not exists(select * from actua act where act.cod_Act = a.COD_ACT 
+                                  and p.cod_peli = act.cod_peli))
+    languageId: oracle-sql
+  - kind: 1
+    value: >-
+      Obtener el código y el título de las películas de menos de 100 minutos en
+      las que todos los actores que han actuado son de un mismo país.
+
+
+
+      &forall; actua de ese actor -> &exist; pelicula de menos de 100 min
+
+
+      no existe actua de ese actor ^ no (pelicula dura menos de 100) ^ no ()
+    languageId: markdown
+  - kind: 2
+    value: >-
+      SELECT p.COD_PELI, p.TITULO
+
+      FROM PELICULA p
+
+      WHERE p.DURACION < 100
+        -- 1. Debe tener al menos un actor cargado
+        AND EXISTS (
+            SELECT *
+            FROM ACTUA act
+            WHERE act.COD_PELI = p.COD_PELI
+        )
+        -- 2. No debe existir NINGÚN actor en la película cuyo país sea DISTINTO a los demás
+        AND NOT EXISTS (
+            SELECT *
+            FROM ACTUA act1
+            JOIN ACTOR a1 ON act1.COD_ACT = a1.COD_ACT
+            JOIN ACTUA act2 ON act2.COD_PELI = act1.COD_PELI
+            JOIN ACTOR a2 ON act2.COD_ACT = a2.COD_ACT
+            WHERE act1.COD_PELI = p.COD_PELI
+              AND a1.cod_PAIS <> a2.cod_PAIS
+        );
+    languageId: oracle-sql
+  - kind: 1
+    value: ""
+    languageId: markdown
+  - kind: 1
+    value: |
+      # Práctica 4
+    languageId: markdown
+  - kind: 1
+    value: ""
+    languageId: markdown
+  - kind: 2
+    value: |
+      select g.cod_gen, g.nombre, count(c.COD_PELI), avg(p.duracion)
+      from genero g
+          join clasificacion c on c.cod_gen = g.cod_gen
+          join pelicula p on c.COD_PELI = p.COD_PELI
+      group by g.cod_gen, g.nombre
+      having count(c.COD_PELI) > 5
+      order by g.nombre
+    languageId: oracle-sql
+  - kind: 1
+    value: ""
+    languageId: markdown
+  - kind: 2
+    value: |-
+      select p.cod_peli, p.TITULO, count(c.COD_GEN)
+      from pelicula p
+          join clasificacion c on p.cod_peli = c.cod_peli
+      where p.anyo > 2000
+      group by p.cod_peli, p.titulo
+      order by p.titulo
+    languageId: oracle-sql
+  - kind: 1
+    value: ""
+    languageId: markdown
+  - kind: 2
+    value: |-
+      select p.cod_peli, p.titulo, count(distinct(act.cod_act)) as nAct
+      from pelicula p
+          join actua act on p.COD_PELI = act.COD_PELI
+          join CLASIFICACION c on c.COD_PELI = p.COD_PELI
+      group by p.COD_PELI, p.TITULO
+      having count(distinct(c.cod_gen)) = 1
+      order by p.TITULO
+    languageId: oracle-sql
+  - kind: 1
+    value: ""
+    languageId: markdown
+  - kind: 2
+    value: |
+      select pa.cod_pais, pa.nombre, count(distinct(a.cod_act))
+      from pais pa
+          join actor a on pa.COD_PAIS = a.COD_PAIS
+          join actua act on a.COD_ACT = act.cod_act
+          join pelicula p on p.COD_PELI = act.COD_PELI
+      where p.anyo between 1960 and 1969
+      group by pa.COD_PAIS, pa.NOMBRE
+      order by pa.NOMBRE
+    languageId: oracle-sql
+  - kind: 2
+    value: >-
+      select p.COD_PAIS, p.NOMBRE, count(a.COD_ACT) as cantidad
+
+      from pais p
+          left join actor a on a.cod_pais = p.cod_pais and a.nombre like '%George$'
+      group by p.cod_pais, p.nombre
+
+      order by p.nombre
+    languageId: oracle-sql
+  - kind: 2
+    value: |-
+      select p.cod_pelo, p.titulo, l.titulo
+      from pelicula p
+          left join 
+      where
+      union
+    languageId: oracle-sql
+  - kind: 1
+    value: >-
+      Obtener el código y el título de todos los libros de la base de datos de
+      año posterior a 1980 junto con la
+
+      cantidad de películas a que han dado lugar.
+    languageId: markdown
+  - kind: 1
+    value: ""
+    languageId: markdown
+  - kind: 2
+    value: |+
+      select l.cod_lib, l.titulo, l.anyo, count(p.COD_PELI)
+      from libro_peli l
+          left join pelicula p on p.cod_lib = l.cod_lib
+      where l.ANYO > 1980
+      group by l.COD_LIB, l.titulo, l.anyo
+
+    languageId: oracle-sql
+  - kind: 1
+    value: >-
+      Obtener para todos los países que hay en la base de datos, el código, el
+      nombre y la cantidad de actores
+
+      que hay de ese país que hayan tenido un papel como “Secundario” en alguna
+      película.
+    languageId: markdown
+  - kind: 2
+    value: >-
+      select p.cod_pais, p.nombre, count(distinct act.cod_act)
+
+      from pais p
+          left join actor a on p.COD_PAIS = a.COD_PAIS
+          left join actua act on a.COD_ACT = act.COD_ACT and act.papel = 'Secundario'
+      group by p.cod_pais, p.nombre
+    languageId: oracle-sql
+  - kind: 1
+    value: ""
+    languageId: markdown
+  - kind: 2
+    value: |
+      select count(*)
+      from actor a
+    languageId: oracle-sql
